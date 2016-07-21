@@ -16,13 +16,24 @@
 #define GhostPlusShare_BUNDLE	[GhostPlusShare bundle]
 
 // Module
-//#import <GhostPlusShare/GPSSharer.h>
-//#import <GhostPlusShare/GPSItem.h>
+#import <GhostPlusShare/GPSSharer.h>
+#import <GhostPlusShare/GPSItem.h>
+#import <GhostPlusShare/GPSMail.h>
+#import <GhostPlusShare/GPSMessage.h>
+
+// Constans
+#define GHOSTPLUSSHARE_VERSION           @"1.00";
+#define GHOSTPLUSSHARE_BUILD_VERSION     @"100";
 
 /**
  GhostPlusShare 메인클래스
  */
 @interface GhostPlusShare : NSObject
+
+/**
+ 준비 확인
+ */
++ (void)checkPrepare;
 
 /**
  GhostPlusShare 번들
@@ -35,4 +46,15 @@
  */
 + (UIImage *)imageWithFilename:(NSString *)filename;
 
+/**
+ Sharer 레퍼런스 유지
+ @pararm sharer
+ */
++ (void)keepSharerReference:(GPSSharer *)sharer;
+
+/**
+ Sharer 레퍼런스 제거
+ @pararm sharer
+ */
++ (void)removeSharerReference:(GPSSharer *)sharer;
 @end

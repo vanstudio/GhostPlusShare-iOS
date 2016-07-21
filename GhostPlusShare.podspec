@@ -1,4 +1,4 @@
-@version = "0.01"
+@version = "1.00"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -11,24 +11,36 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
   
-  framework_path = 'GhostPlusShare.framework'
-
-  s.vendored_frameworks = ['Frameworks/GhostPlusShare.framework']
-  
-  #s.source           = { :http => 'http://developer.ghostplus.com/project/ghostplus_ios/GhostPlus-1.00.tar.gz', :flatten => true }
   s.source       = { :git => "https://github.com/vanstudio/GhostPlusShare-iOS.git", :tag => @version }
+  s.default_subspec = 'Core'
   
-  s.source_files = []
-  s.resources = ['Frameworks/GhostPlusShare.framework/Versions/A/Resources/GhostPlusShareResources.bundle']
+  s.subspec 'Core' do |core|
+  	core.dependency 'GhostPlus'
+  	core.header_dir = 'GhostPlusShare'
+  	core.vendored_frameworks = ['Frameworks/GhostPlusShare.framework']
+  	core.resource = 'Frameworks/GhostPlusShare.framework/Versions/A/Resources/GhostPlusShareResources.bundle'
+  	core.frameworks = 'MessageUI'
+  end
   
-  s.preserve_paths = []
-  s.header_dir = 'GhostPlusShare'
-
-  s.frameworks = ['GhostPlusShare', 'Social']
-  #s.libraries = ['stdc++', 'z']
+  s.subspec 'Facebook' do |facebook|
+  	facebook.source_files = 'Classes/Services/Facebook/**/*.{h,m}'
+  	facebook.dependency 'FBSDKCoreKit', '~> 4.10.1'
+  	facebook.dependency 'FBSDKShareKit', '~> 4.10.1'
+  	facebook.dependency 'GhostPlusShare/Core'
+  end
   
-  #s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_ROOT)/TestGhostPlus"' }
+  s.subspec 'Twitter' do |twitter|
+  	twitter.pod_target_xcconfig = { 'CLANG_ENABLE_MODULES' => 'NO' }	# for TwitterCore module error
+  	twitter.source_files = 'Classes/Services/Twitter/**/*.{h,m}'
+  	twitter.dependency 'Fabric', '~> 1.6.7'
+  	twitter.dependency 'TwitterKit', '~> 1.15.3'
+  	twitter.dependency 'GhostPlusShare/Core'
+  end
   
-  s.dependency 'GhostPlus'
-  #s.dependency 'KakaoOpenSDK', :git => 'git@github.com:Posteet/KakaoOpenSDK.git'
+  s.subspec 'Kakao' do |kakao|
+  	kakao.source_files = 'Classes/Services/Kakao/**/*.{h,m}'
+    kakao.dependency 'GhostPlusShare/Core'
+  	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework']	# ver 1.0.60 (2016.07.08) 
+    kakao.frameworks = 'UIKit'
+  end
 end
