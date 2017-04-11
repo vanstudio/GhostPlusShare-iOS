@@ -1,4 +1,4 @@
-@version = "1.00"
+@version = "1.01"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -42,5 +42,10 @@ Pod::Spec.new do |s|
     kakao.dependency 'GhostPlusShare/Core'
   	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework']	# ver 1.0.60 (2016.07.08) 
     kakao.frameworks = 'UIKit'
+  end
+  
+  s.subspec 'NaverBand' do |naverband|
+  	naverband.source_files = 'Classes/Services/NaverBand/**/*.{h,m}'
+    naverband.dependency 'GhostPlusShare/Core'
   end
 end

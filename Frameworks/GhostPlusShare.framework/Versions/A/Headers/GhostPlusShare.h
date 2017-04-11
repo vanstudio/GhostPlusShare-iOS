@@ -22,8 +22,8 @@
 #import <GhostPlusShare/GPSMessage.h>
 
 // Constans
-#define GHOSTPLUSSHARE_VERSION           @"1.00";
-#define GHOSTPLUSSHARE_BUILD_VERSION     @"100";
+#define GHOSTPLUSSHARE_VERSION           @"1.01";
+#define GHOSTPLUSSHARE_BUILD_VERSION     @"101";
 
 /**
  GhostPlusShare 메인클래스
