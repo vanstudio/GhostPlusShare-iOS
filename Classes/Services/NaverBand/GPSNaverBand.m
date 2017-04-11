@@ -14,7 +14,7 @@
 
 @implementation GPSNaverBand
 + (NSString *)sharerTitle {
-	return @"Twitter";
+	return @"네이버밴드";
 }
 
 + (BOOL)checkPrepare {
