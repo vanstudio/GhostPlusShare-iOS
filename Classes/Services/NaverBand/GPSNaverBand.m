@@ -63,25 +63,28 @@
 	return controller;
 }
 
-+ (id)shareWithLinkURL:(NSURL *)linkURL {
-	GPSItem *item = [GPSItem new];
-	item.contentURL = linkURL;
++ (id)shareWithText:(NSString *)text route:(NSString *)route {
+	GPSNaverBandItem *item = [GPSNaverBandItem new];
+	item.contentTitle = text;
+	item.route = route;
 	return [self shareItem:item showFromViewController:nil];
 }
 
 
 #pragma mark - methods
 - (void)share {
+	GPSNaverBandItem *item = (GPSNaverBandItem *)self.item;
+	
 	// exception
-	if (self.item.contentURL == nil) {
+	if (item.contentTitle == nil && item.route == nil) {
 		GPLogW(@"공유 할 내용이 없습니다.");
 		return;
 	}
 	
 	// share
 	
-	NSString *text = self.item.contentURL.absoluteString;
-	NSString *route = self.item.contentURL.host;
+	NSString *text = item.contentTitle;
+	NSString *route = item.route;
 	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"bandapp://create/post?text=%@&route=%@", [text URLEncode], [route URLEncode]]];
 	GPLog(@"url : %@", url);
 	if ([[UIApplication sharedApplication] canOpenURL:url]) {
@@ -90,6 +93,15 @@
 	else {
 		[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"네이버밴드 앱을 설치하신 후에 이용하실 수 있습니다." cancelButtonTitle:@"확인"];
 	}
+}
+
+@end
+
+
+@implementation GPSNaverBandItem
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"%@\nroute : %@", [super description], self.route];
 }
 
 @end

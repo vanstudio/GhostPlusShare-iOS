@@ -10,6 +10,10 @@
 
 @interface GPSNaverBand : GPSSharer
 
-+ (id)shareWithLinkURL:(NSURL *)linkURL;
++ (id)shareWithText:(NSString *)text route:(NSString *)route;
 
+@end
+
+@interface GPSNaverBandItem : GPSItem
+@property (nonatomic, strong) NSString *route;
 @end
