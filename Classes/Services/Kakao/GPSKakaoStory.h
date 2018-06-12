@@ -8,6 +8,8 @@
 
 #import <GhostPlusShare/GhostPlusShare.h>
 #import <KakaoOpenSDK/KakaoOpenSDK.h>
+#import <KakaoLink/KakaoLink.h>
+#import <KakaoMessageTemplate/KakaoMessageTemplate.h>
 
 #define KEY_STORYLINK_URLINFO_TITLE		@"title"
 #define KEY_STORYLINK_URLINFO_DESC		@"desc"

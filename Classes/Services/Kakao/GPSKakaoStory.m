@@ -60,11 +60,15 @@
 	//////////////////////////////////////////////////////////////////////
 	NSMutableArray *needRegisterSchemes = [NSMutableArray new];
 	NSArray *LSApplicationQueriesSchemes = @[
+											 // 간편로그인
 											 @"kakaokompassauth",
 											 @"storykompassauth",
+											 
+											 // 카카오톡링크
 											 @"kakaolink",
-											 @"kakaotalk-4.5.0",
-											 @"kakaostory-2.9.0",
+											 @"kakaotalk-5.9.7",
+											 
+											 // 카카오스토리링크
 											 @"storylink"
 											 ];
 	
@@ -108,6 +112,7 @@
 		GPLogW(@"======================================================================");
 		if ([GhostPlus useLog]) {
 			printf("#import <KakaoOpenSDK/KakaoOpenSDK.h>\n");
+			printf("#import <KakaoLink/KakaoLink.h>\n");
 			
 			printf("\n");
 			
@@ -127,10 +132,24 @@
 			
 			printf("- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {\n");
 			printf("\t// kakao\n");
-			printf("\tif ([KOSession isKakaoAccountLoginCallback:url]) {\n");
-			printf("\t\treturn [KOSession handleOpenURL:url];\n");
+			printf("\tif ([KOSession handleOpenURL:url]) {\n");
+			printf("\t\treturn YES;\n");
 			printf("\t}\n");
-			printf("\tif ([KOSession isKakaoLinkCallback:url] || [KOSession isStoryPostCallback:url]) {\n");
+			printf("\tif ([[KLKTalkLinkCenter sharedCenter] isTalkLinkCallback:url]) {\n");
+			printf("\t\tNSLog(@\"KakaoLink/KakaoStory callback! query string : %%@\", [url query]);\n");
+			printf("\t\treturn YES;\n");
+			printf("\t}\n");
+			printf("\treturn NO;\n");
+			printf("}\n");
+			
+			printf("\n");
+			
+			printf("- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {\n");
+			printf("\t// kakao\n");
+			printf("\tif ([KOSession handleOpenURL:url]) {\n");
+			printf("\t\treturn YES;\n");
+			printf("\t}\n");
+			printf("\tif ([[KLKTalkLinkCenter sharedCenter] isTalkLinkCallback:url]) {\n");
 			printf("\t\tNSLog(@\"KakaoLink/KakaoStory callback! query string : %%@\", [url query]);\n");
 			printf("\t\treturn YES;\n");
 			printf("\t}\n");
@@ -193,6 +212,28 @@
 
 #pragma mark - methods
 - (void)share {
+	GPLogI();
+	
+	// exception - 카카오스토리 사용자확인
+	[KOSessionTask storyIsStoryUserTaskWithCompletionHandler:^(BOOL isStoryUser, NSError *error) {
+		if (!error) {
+			// isStoryUser의 boolean으로 판단합니다. true일 경우 story 사용자입니다.
+			if (isStoryUser) {
+				NSLog(@"You are a KakaoStory's user");
+				[self shareProcess];
+			} else {
+				NSLog(@"You are not a KakaoStory's user");
+				[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"카카오스토리 사용자가 아닙니다." cancelButtonTitle:@"확인"];
+			}
+		} else {
+			// error
+			NSLog(@"%@", error);
+		}
+	}];
+}
+
+- (void)shareProcess {
+	GPLogI();
 	GPSKakaoStoryItem *item = (GPSKakaoStoryItem *)self.item;
 	
 	// exception
@@ -300,9 +341,7 @@
 									  [GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"카카오스토리에 등록되었습니다" cancelButtonTitle:@"확인"];
 								  }];
 	}
-	
 }
-
 @end
 
 

@@ -1,24 +1,22 @@
 /**
-* Copyright 2015 Kakao Corp.
-*
-* Redistribution and modification in source or binary forms are not permitted without specific prior written permission.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2015-2018 Kakao Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /*!
  @header KOStoryMyStoryInfo.h
- 카카오스토리의 내스토리 정보를 담고 있는 구조체.
+ @abstract 카카오스토리의 내스토리 정보를 담고 있는 구조체.
  */
 
 #import <Foundation/Foundation.h>
@@ -32,9 +30,9 @@
  */
 typedef NS_ENUM(NSInteger, KOStoryMediaType) {
     KOStoryMediaTypeUnknown = 0,
-    KOStoryMediaTypeNotSupported,
-    KOStoryMediaTypeNote,
-    KOStoryMediaTypePhoto
+    KOStoryMediaTypeNotSupported = 1,
+    KOStoryMediaTypeNote = 2,
+    KOStoryMediaTypePhoto = 3
 };
 
 /*!
@@ -46,14 +44,18 @@ typedef NS_ENUM(NSInteger, KOStoryMediaType) {
  */
 typedef NS_ENUM(NSInteger, KOStoryPermission) {
     KOStoryPermissionUnknown = 0,
-    KOStoryPermissionPublic,
-    KOStoryPermissionFriend,
-    KOStoryPermissionOnlyMe
+    KOStoryPermissionPublic = 1,
+    KOStoryPermissionFriend = 2,
+    KOStoryPermissionOnlyMe = 3
 };
+
+@class KOStoryMyStoryImageInfo;
+@class KOStoryCommentInfo;
+@class KOStoryLikeInfo;
 
 /*!
  @class KOStoryMyStoryInfo
- @discussion 카카오스토리의 내스토리 정보를 담고 있는 구조체.
+ @abstract 카카오스토리의 내스토리 정보를 담고 있는 구조체.
  */
 
 @interface KOStoryMyStoryInfo : NSObject
@@ -86,7 +88,7 @@ typedef NS_ENUM(NSInteger, KOStoryPermission) {
  @property media
  @abstract 내스토리 정보의 미디어타입이 PHOTO일 경우 이미지 내용의 array. KOStoryMyStoryImageInfo 객체의 array.
  */
-@property(nonatomic, readonly) NSArray *media;
+@property(nonatomic, readonly) NSArray<KOStoryMyStoryImageInfo *> *media;
 
 /*!
  @property url
@@ -110,13 +112,13 @@ typedef NS_ENUM(NSInteger, KOStoryPermission) {
  @property comments
  @abstract 댓글 정보들을 담고 있는 array. KOStoryCommentInfo 객체의 array. 내스토리 정보 요청을 통해 값이 채워짐.
  */
-@property(nonatomic, readonly) NSArray *comments;
+@property(nonatomic, readonly) NSArray<KOStoryCommentInfo *> *comments;
 
 /*!
  @property likes
  @abstract 좋아요 등 느낌(감성표현)에 대한 정보들을 담고 있는 array. KOStoryLikeInfo 객체의 array. 내스토리 정보 요청을 통해 값이 채워짐.
  */
-@property(nonatomic, readonly) NSArray *likes;
+@property(nonatomic, readonly) NSArray<KOStoryLikeInfo *> *likes;
 
 /*!
  @property permission
@@ -129,12 +131,12 @@ typedef NS_ENUM(NSInteger, KOStoryPermission) {
          content:(NSString *)content
        mediaType:(KOStoryMediaType)mediaType
        createdAt:(NSString *)createdAt
-           media:(NSArray *)media
+           media:(NSArray<KOStoryMyStoryImageInfo *> *)media
              url:(NSString *)url
     commentCount:(NSNumber *)commentCount
        likeCount:(NSNumber *)likeCount
-        comments:(NSArray *)comments
-           likes:(NSArray *)likes
+        comments:(NSArray<KOStoryCommentInfo *> *)comments
+           likes:(NSArray<KOStoryLikeInfo *> *)likes
       permission:(KOStoryPermission)permission;
 
 - (NSString *)convertMediaTypeToString:(KOStoryMediaType)mediaType;

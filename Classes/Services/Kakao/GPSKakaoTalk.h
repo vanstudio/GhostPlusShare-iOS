@@ -8,24 +8,25 @@
 
 #import <GhostPlusShare/GhostPlusShare.h>
 #import <KakaoOpenSDK/KakaoOpenSDK.h>
+#import <KakaoLink/KakaoLink.h>
+#import <KakaoMessageTemplate/KakaoMessageTemplate.h>
 
 
 typedef NS_ENUM(NSInteger, GPSKakaoTalkButtonType) {
 	GPSKakaoTalkButtonTypeNone,
-	GPSKakaoTalkButtonTypeWebLink,
 	GPSKakaoTalkButtonTypeWebButton,
-	GPSKakaoTalkButtonTypeWebLinkWithAppButton,
-	GPSKakaoTalkButtonTypeAppButton
+	GPSKakaoTalkButtonTypeAppButton,
+	GPSKakaoTalkButtonTypeWebButtonAndAppButton
 };
 
 
 @interface GPSKakaoTalk : GPSSharer
 
-+ (void)setWebLinkTitle:(NSString *)title;
 + (void)setWebButtonTitle:(NSString *)title;
 + (void)setAppButtonTitle:(NSString *)title;
 
-+ (id)shareWithText:(NSString *)text imageURL:(NSURL *)imageURL linkURL:(NSURL *)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam;
++ (id)shareWithText:(NSString * _Nonnull)text imageURL:(NSURL * _Nonnull)imageURL linkURL:(NSURL * _Nonnull)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam;
++ (id)shareWithTitle:(NSString * _Nonnull)title desc:(NSString *)desc imageURL:(NSURL * _Nonnull)imageURL linkURL:(NSURL * _Nonnull)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam;
 
 @end
 

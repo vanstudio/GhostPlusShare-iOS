@@ -8,9 +8,8 @@
 
 #import "GPSKakaoTalk.h"
 
-static NSString *WEBLINKTITLE = @"웹으로 이동";
-static NSString *WEBBUTTONTITLE = @"웹으로 이동";
-static NSString *APPBUTTONTITLE = @"앱으로 이동";
+static NSString *WEBBUTTONTITLE = @"웹으로 보기";
+static NSString *APPBUTTONTITLE = @"앱으로 보기";
 
 @interface GPSKakaoTalk ()
 @property (nonatomic) CGSize imageSize;
@@ -60,11 +59,15 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 	//////////////////////////////////////////////////////////////////////
 	NSMutableArray *needRegisterSchemes = [NSMutableArray new];
 	NSArray *LSApplicationQueriesSchemes = @[
+											 // 간편로그인
 											 @"kakaokompassauth",
 											 @"storykompassauth",
+											 
+											 // 카카오톡링크
 											 @"kakaolink",
-											 @"kakaotalk-4.5.0",
-											 @"kakaostory-2.9.0",
+											 @"kakaotalk-5.9.7",
+											 
+											 // 카카오스토리링크
 											 @"storylink"
 											 ];
 	
@@ -108,6 +111,7 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 		GPLogW(@"======================================================================");
 		if ([GhostPlus useLog]) {
 			printf("#import <KakaoOpenSDK/KakaoOpenSDK.h>\n");
+			printf("#import <KakaoLink/KakaoLink.h>\n");
 			
 			printf("\n");
 			
@@ -127,10 +131,24 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 			
 			printf("- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {\n");
 			printf("\t// kakao\n");
-			printf("\tif ([KOSession isKakaoAccountLoginCallback:url]) {\n");
-			printf("\t\treturn [KOSession handleOpenURL:url];\n");
+			printf("\tif ([KOSession handleOpenURL:url]) {\n");
+			printf("\t\treturn YES;\n");
 			printf("\t}\n");
-			printf("\tif ([KOSession isKakaoLinkCallback:url] || [KOSession isStoryPostCallback:url]) {\n");
+			printf("\tif ([[KLKTalkLinkCenter sharedCenter] isTalkLinkCallback:url]) {\n");
+			printf("\t\tNSLog(@\"KakaoLink/KakaoStory callback! query string : %%@\", [url query]);\n");
+			printf("\t\treturn YES;\n");
+			printf("\t}\n");
+			printf("\treturn NO;\n");
+			printf("}\n");
+			
+			printf("\n");
+			
+			printf("- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {\n");
+			printf("\t// kakao\n");
+			printf("\tif ([KOSession handleOpenURL:url]) {\n");
+			printf("\t\treturn YES;\n");
+			printf("\t}\n");
+			printf("\tif ([[KLKTalkLinkCenter sharedCenter] isTalkLinkCallback:url]) {\n");
 			printf("\t\tNSLog(@\"KakaoLink/KakaoStory callback! query string : %%@\", [url query]);\n");
 			printf("\t\treturn YES;\n");
 			printf("\t}\n");
@@ -141,10 +159,6 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 	}
 	
 	return result;
-}
-
-+ (void)setWebLinkTitle:(NSString *)title {
-	WEBLINKTITLE = title;
 }
 
 + (void)setWebButtonTitle:(NSString *)title {
@@ -164,9 +178,20 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 	return controller;
 }
 
-+ (id)shareWithText:(NSString *)text imageURL:(NSURL *)imageURL linkURL:(NSURL *)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam {
++ (id)shareWithText:(NSString * _Nonnull)text imageURL:(NSURL * _Nonnull)imageURL linkURL:(NSURL * _Nonnull)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam {
 	GPSKakaoTalkItem *item = [GPSKakaoTalkItem new];
-	item.contentDescription = text;
+	item.contentTitle = text;
+	item.imageURL = imageURL;
+	item.contentURL = linkURL;
+	item.buttonType = buttonType;
+	item.execparam = execparam;
+	return [self shareItem:item showFromViewController:nil];
+}
+
++ (id)shareWithTitle:(NSString * _Nonnull)title desc:(NSString *)desc imageURL:(NSURL * _Nonnull)imageURL linkURL:(NSURL * _Nonnull)linkURL buttonType:(GPSKakaoTalkButtonType)buttonType execparam:(NSDictionary *)execparam {
+	GPSKakaoTalkItem *item = [GPSKakaoTalkItem new];
+	item.contentTitle = title;
+	item.contentDescription = desc;
 	item.imageURL = imageURL;
 	item.contentURL = linkURL;
 	item.buttonType = buttonType;
@@ -177,77 +202,127 @@ static NSString *APPBUTTONTITLE = @"앱으로 이동";
 
 #pragma mark - methods
 - (void)share {
-	GPSKakaoTalkItem *item = (GPSKakaoTalkItem *)self.item;
+//	GPSKakaoTalkItem *item = (GPSKakaoTalkItem *)self.item;
 	
 	// exception
-	if ([KOAppCall canOpenKakaoTalkAppLink] == NO) {
+	if ([KLKTalkLinkCenter sharedCenter].isAvailable == NO) {
 		[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"카카오톡 앱을 설치하신 후에 이용하실 수 있습니다." cancelButtonTitle:@"확인"];
 		return;
 	}
 	
-	// check image
-	if (item.imageURL) {
-		self.imageSize = CGSizeZero;
-		
-		// get image size
-		[UIImage loadImageSizeInBackgroundWithURL:item.imageURL complete:^(BOOL success, CGSize imageSize) {
-			GPLogD(@"get imagesize : %@ %@", PrintBool(success), PrintSize(imageSize));
-			if (success) {
-				self.imageSize = imageSize;
-			}
-			else {
-				self.item.imageURL = nil;
-			}
-			
-			// share
-			[self shareProcess];
-		}];
-		return;
-	}
+//	// check image
+//	if (item.imageURL) {
+//		self.imageSize = CGSizeZero;
+//
+//		// get image size
+//		[UIImage loadImageSizeInBackgroundWithURL:item.imageURL complete:^(BOOL success, CGSize imageSize) {
+//			GPLogD(@"get imagesize : %@ %@", PrintBool(success), PrintSize(imageSize));
+//			if (success) {
+//				self.imageSize = imageSize;
+//			}
+//			else {
+//				self.item.imageURL = nil;
+//			}
+//
+//			// share
+//			[self shareProcess];
+//		}];
+//		return;
+//	}
 	
 	// share
 	[self shareProcess];
 }
 
 - (void)shareProcess {
-	GPSKakaoTalkItem *item = (GPSKakaoTalkItem *)self.item;
-	NSMutableArray *appLinkArray = [NSMutableArray new];
+	__block GPSKakaoTalkItem *item = (GPSKakaoTalkItem *)self.item;
 	
-	// label
-	if (item.contentDescription) {
-		KakaoTalkLinkObject *label = [KakaoTalkLinkObject createLabel:item.contentDescription];
-		[appLinkArray addObject:label];
-	}
+	// Feed 타입 템플릿 오브젝트 생성
+	KMTTemplate *template = [KMTFeedTemplate feedTemplateWithBuilderBlock:^(KMTFeedTemplateBuilder * _Nonnull feedTemplateBuilder) {
+		
+		// 컨텐츠
+		feedTemplateBuilder.content = [KMTContentObject contentObjectWithBuilderBlock:^(KMTContentBuilder * _Nonnull contentBuilder) {
+			// title
+			if (item.contentTitle) {
+				contentBuilder.title = item.contentTitle;
+			}
+			// desc
+			if (item.contentDescription) {
+				contentBuilder.desc = item.contentDescription;
+			}
+			// imageURL
+			if (item.imageURL) {
+				contentBuilder.imageURL = item.imageURL;
+			}
+			// link
+			if (item.contentURL) {
+				contentBuilder.link = [KMTLinkObject linkObjectWithBuilderBlock:^(KMTLinkBuilder * _Nonnull linkBuilder) {
+					linkBuilder.mobileWebURL = item.contentURL;
+				}];
+			}
+		}];
+		
+//		// 소셜
+//		feedTemplateBuilder.social = [KMTSocialObject socialObjectWithBuilderBlock:^(KMTSocialBuilder * _Nonnull socialBuilder) {
+//			socialBuilder.likeCount = @(286);
+//			socialBuilder.commnentCount = @(45);
+//			socialBuilder.sharedCount = @(845);
+//		}];
+		
+		// 버튼
+		if (item.contentURL) {
+			// webbutton
+			if (item.buttonType == GPSKakaoTalkButtonTypeWebButton || item.buttonType == GPSKakaoTalkButtonTypeWebButtonAndAppButton) {
+				[feedTemplateBuilder addButton:[KMTButtonObject buttonObjectWithBuilderBlock:^(KMTButtonBuilder * _Nonnull buttonBuilder) {
+					buttonBuilder.title = WEBBUTTONTITLE;
+					buttonBuilder.link = [KMTLinkObject linkObjectWithBuilderBlock:^(KMTLinkBuilder * _Nonnull linkBuilder) {
+						linkBuilder.mobileWebURL = item.contentURL;
+					}];
+				}]];
+			}
+			
+			// appbutton
+			if (item.buttonType == GPSKakaoTalkButtonTypeAppButton || item.buttonType == GPSKakaoTalkButtonTypeWebButtonAndAppButton) {
+				[feedTemplateBuilder addButton:[KMTButtonObject buttonObjectWithBuilderBlock:^(KMTButtonBuilder * _Nonnull buttonBuilder) {
+					buttonBuilder.title = APPBUTTONTITLE;
+					buttonBuilder.link = [KMTLinkObject linkObjectWithBuilderBlock:^(KMTLinkBuilder * _Nonnull linkBuilder) {
+						// convert execparam to query string
+						NSString *executionParams = nil;
+						if (item.execparam) {
+							NSURLComponents *components = [NSURLComponents new];
+							NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+							for (NSString *key in item.execparam) {
+								NSObject *value = item.execparam[key];
+								if ([value isMemberOfClass:[NSURL class]]) {
+									value = ((NSURL *)value).absoluteString;
+								}
+								GPLogD(@"key : %@", key);
+								GPLogD(@"value : %@", value);
+								[queryItems addObject:[NSURLQueryItem queryItemWithName:key value:[((NSString *)value) URLEncode]]];
+							}
+							components.queryItems = [queryItems copy];
+							executionParams = components.query;
+						}
+						GPLogI(@"executionParams : %@", executionParams);
+						
+						linkBuilder.androidExecutionParams = executionParams;
+						linkBuilder.iosExecutionParams = executionParams;
+					}];
+				}]];
+			}
+		}
+	}];
+	GPLogD(@"template : %@", template);
 	
-	// image
-	if (item.imageURL) {
-		KakaoTalkLinkObject *image = [KakaoTalkLinkObject createImage:item.imageURL.absoluteString width:self.imageSize.width height:self.imageSize.height];
-		[appLinkArray addObject:image];
-	}
-	
-	// weblink
-	if (item.buttonType == GPSKakaoTalkButtonTypeWebLink || item.buttonType == GPSKakaoTalkButtonTypeWebLinkWithAppButton) {
-		KakaoTalkLinkObject *webLink = [KakaoTalkLinkObject createWebLink:WEBLINKTITLE url:item.contentURL.absoluteString];
-		[appLinkArray addObject:webLink];
-	}
-	
-	// webbutton
-	if (item.buttonType == GPSKakaoTalkButtonTypeWebButton) {
-		KakaoTalkLinkObject *webButton = [KakaoTalkLinkObject createWebButton:WEBBUTTONTITLE url:item.contentURL.absoluteString];
-		[appLinkArray addObject:webButton];
-	}
-	
-	// appbutton
-	if (item.buttonType == GPSKakaoTalkButtonTypeAppButton || item.buttonType == GPSKakaoTalkButtonTypeWebLinkWithAppButton) {
-		KakaoTalkLinkAction *androidAppAction = [KakaoTalkLinkAction createAppAction:KakaoTalkLinkActionOSPlatformAndroid devicetype:KakaoTalkLinkActionDeviceTypePhone execparam:item.execparam];
-		KakaoTalkLinkAction *iphoneAppAction = [KakaoTalkLinkAction createAppAction:KakaoTalkLinkActionOSPlatformIOS devicetype:KakaoTalkLinkActionDeviceTypePhone execparam:item.execparam];
-		KakaoTalkLinkAction *webLinkActionUsingPC = [KakaoTalkLinkAction createWebAction:item.contentURL.absoluteString];
-		KakaoTalkLinkObject *appButton = [KakaoTalkLinkObject createAppButton:APPBUTTONTITLE actions:@[androidAppAction, iphoneAppAction, webLinkActionUsingPC]];
-		[appLinkArray addObject:appButton];
-	}
-	
-	// open kakaotalk
-	[KOAppCall openKakaoTalkAppLink:appLinkArray];
+	// 카카오링크 실행
+	[[KLKTalkLinkCenter sharedCenter] sendDefaultWithTemplate:template success:^(NSDictionary<NSString *,NSString *> * _Nullable warningMsg, NSDictionary<NSString *,NSString *> * _Nullable argumentMsg) {
+		// 성공
+		GPLogI(@"warning message : %@", warningMsg);
+		GPLogI(@"argument message : %@", argumentMsg);
+	} failure:^(NSError * _Nonnull error) {
+		// 실패
+		GPLogE(@"error : %@", error);
+	}];
 }
 
 @end

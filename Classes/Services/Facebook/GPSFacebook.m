@@ -62,7 +62,7 @@
 	NSMutableArray *needRegisterSchemes = [NSMutableArray new];
 	NSArray *LSApplicationQueriesSchemes = @[
 											 @"fbapi",
-											 @"fb-messenger-api",
+											 @"fb-messenger-share-api",
 											 @"fbauth2",
 											 @"fbshareextension"
 											 ];
@@ -188,7 +188,7 @@
 				GPLogE(@"image is nil");
 				return;
 			}
-			
+
 			FBSDKSharePhoto *photo = [FBSDKSharePhoto photoWithImage:image userGenerated:YES];
 			FBSDKSharePhotoContent *photoContent = [[FBSDKSharePhotoContent alloc] init];
 			photoContent.photos = @[photo];

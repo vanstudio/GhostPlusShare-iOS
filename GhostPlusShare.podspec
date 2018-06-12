@@ -1,4 +1,4 @@
-@version = "1.04"
+@version = "1.05"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.authors          = { 'VANSTUDIO' => 'vanstudio@ghost-corps.com' }
   
-  s.platform     = :ios, '7.0'
+  s.platform     = :ios, '8.0'
   s.requires_arc = true
   
   s.source       = { :git => "https://github.com/vanstudio/GhostPlusShare-iOS.git", :tag => @version }
@@ -24,8 +24,8 @@ Pod::Spec.new do |s|
   
   s.subspec 'Facebook' do |facebook|
   	facebook.source_files = 'Classes/Services/Facebook/**/*.{h,m}'
-  	facebook.dependency 'FBSDKCoreKit', '~> 4.10.1'
-  	facebook.dependency 'FBSDKShareKit', '~> 4.10.1'
+  	facebook.dependency 'FBSDKCoreKit', '~> 4.33.0'		# (2018.06.12) 
+  	facebook.dependency 'FBSDKShareKit', '~> 4.33.0'	# (2018.06.12) 
   	facebook.dependency 'GhostPlusShare/Core'
   end
   
@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.subspec 'Kakao' do |kakao|
   	kakao.source_files = 'Classes/Services/Kakao/**/*.{h,m}'
     kakao.dependency 'GhostPlusShare/Core'
-  	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework']	# ver 1.0.60 (2016.07.08) 
+  	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework', 'Frameworks/KakaoCommon.framework', 'Frameworks/KakaoLink.framework', 'Frameworks/KakaoMessageTemplate.framework']	# (2018.06.12) 
     kakao.frameworks = 'UIKit'
   end
   
