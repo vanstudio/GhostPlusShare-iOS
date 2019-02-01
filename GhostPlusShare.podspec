@@ -1,4 +1,4 @@
-@version = "1.06"
+@version = "1.07"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -24,8 +24,8 @@ Pod::Spec.new do |s|
   
   s.subspec 'Facebook' do |facebook|
   	facebook.source_files = 'Classes/Services/Facebook/**/*.{h,m}'
-  	facebook.dependency 'FBSDKCoreKit', '~> 4.33.0'		# (2018.06.12) 
-  	facebook.dependency 'FBSDKShareKit', '~> 4.33.0'	# (2018.06.12) 
+  	facebook.dependency 'FBSDKCoreKit', '~> 4.40.0'		# (2019.02.01) 
+  	facebook.dependency 'FBSDKShareKit', '~> 4.40.0'	# (2019.02.01) 
   	facebook.dependency 'GhostPlusShare/Core'
   end
   
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   	twitter.pod_target_xcconfig = { 'CLANG_ENABLE_MODULES' => 'NO' }	# for TwitterCore module error
   	twitter.source_files = 'Classes/Services/Twitter/**/*.{h,m}'
   	twitter.dependency 'Fabric'
-  	twitter.dependency 'TwitterKit', '~> 2.8.1'
+  	twitter.dependency 'TwitterKit', '~> 2.8.1'			# (2019.02.01) 
   	twitter.dependency 'GhostPlusShare/Core'
   end
   
