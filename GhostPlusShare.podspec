@@ -1,4 +1,4 @@
-@version = "1.05"
+@version = "1.06"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -32,8 +32,8 @@ Pod::Spec.new do |s|
   s.subspec 'Twitter' do |twitter|
   	twitter.pod_target_xcconfig = { 'CLANG_ENABLE_MODULES' => 'NO' }	# for TwitterCore module error
   	twitter.source_files = 'Classes/Services/Twitter/**/*.{h,m}'
-  	twitter.dependency 'Fabric', '~> 1.6.7'
-  	twitter.dependency 'TwitterKit', '~> 1.15.3'
+  	twitter.dependency 'Fabric'
+  	twitter.dependency 'TwitterKit', '~> 2.8.1'
   	twitter.dependency 'GhostPlusShare/Core'
   end
   
