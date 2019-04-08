@@ -1,4 +1,4 @@
-@version = "1.08"
+@version = "1.09"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -24,8 +24,8 @@ Pod::Spec.new do |s|
   
   s.subspec 'Facebook' do |facebook|
   	facebook.source_files = 'Classes/Services/Facebook/**/*.{h,m}'
-  	facebook.dependency 'FBSDKCoreKit', '~> 4.40.0'		# (2019.02.01) 
-  	facebook.dependency 'FBSDKShareKit', '~> 4.40.0'	# (2019.02.01) 
+  	facebook.dependency 'FBSDKCoreKit', '~> 4.40.0'		# (2019.04.08) 
+  	facebook.dependency 'FBSDKShareKit', '~> 4.40.0'	# (2019.04.08) 
   	facebook.dependency 'GhostPlusShare/Core'
   end
   
@@ -33,15 +33,14 @@ Pod::Spec.new do |s|
   	twitter.pod_target_xcconfig = { 'CLANG_ENABLE_MODULES' => 'NO' }	# for TwitterCore module error
   	twitter.source_files = 'Classes/Services/Twitter/**/*.{h,m}'
   	twitter.dependency 'Fabric'
-  	twitter.dependency 'TwitterCore', '~> 2.8.0'		# (2019.02.01) 
-  	twitter.dependency 'TwitterKit', '~> 2.8.1'			# (2019.02.01) 
+  	twitter.dependency 'TwitterKit', '~> 2.8.x'			# (2019.04.08) 
   	twitter.dependency 'GhostPlusShare/Core'
   end
   
   s.subspec 'Kakao' do |kakao|
   	kakao.source_files = 'Classes/Services/Kakao/**/*.{h,m}'
     kakao.dependency 'GhostPlusShare/Core'
-  	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework', 'Frameworks/KakaoCommon.framework', 'Frameworks/KakaoLink.framework', 'Frameworks/KakaoMessageTemplate.framework']	# (2018.06.12) 
+  	kakao.vendored_frameworks = ['Frameworks/KakaoOpenSDK.framework', 'Frameworks/KakaoCommon.framework', 'Frameworks/KakaoLink.framework', 'Frameworks/KakaoMessageTemplate.framework']	# (2019.04.08) 
     kakao.frameworks = 'UIKit'
   end
   

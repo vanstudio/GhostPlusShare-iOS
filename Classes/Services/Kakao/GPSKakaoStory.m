@@ -214,22 +214,43 @@
 - (void)share {
 	GPLogI();
 	
-	// exception - 카카오스토리 사용자확인
-	[KOSessionTask storyIsStoryUserTaskWithCompletionHandler:^(BOOL isStoryUser, NSError *error) {
-		if (!error) {
-			// isStoryUser의 boolean으로 판단합니다. true일 경우 story 사용자입니다.
-			if (isStoryUser) {
-				NSLog(@"You are a KakaoStory's user");
-				[self shareProcess];
-			} else {
-				NSLog(@"You are not a KakaoStory's user");
-				[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"카카오스토리 사용자가 아닙니다." cancelButtonTitle:@"확인"];
-			}
-		} else {
-			// error
-			NSLog(@"%@", error);
+	GPSKakaoStoryItem *item = (GPSKakaoStoryItem *)self.item;
+	
+	if (item.isStoryLink) {
+		[self shareProcess];
+	}
+	else {
+		// login
+		if ([KOSession sharedSession].isOpen == NO) {
+			[[KOSession sharedSession] openWithCompletionHandler:^(NSError *error) {
+				GPLog(@"error : %@", error);
+				
+				// login success
+				if ([[KOSession sharedSession] isOpen]) {
+					// retry
+					[self share];
+				}
+			}];
+			return;
 		}
-	}];
+		
+		// exception - 카카오스토리 사용자확인
+		[KOSessionTask storyIsStoryUserTaskWithCompletionHandler:^(BOOL isStoryUser, NSError *error) {
+			if (!error) {
+				// isStoryUser의 boolean으로 판단합니다. true일 경우 story 사용자입니다.
+				if (isStoryUser) {
+					NSLog(@"You are a KakaoStory's user");
+					[self shareProcess];
+				} else {
+					NSLog(@"You are not a KakaoStory's user");
+					[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"카카오스토리 사용자가 아닙니다." cancelButtonTitle:@"확인"];
+				}
+			} else {
+				// error
+				NSLog(@"%@", error);
+			}
+		}];
+	}
 }
 
 - (void)shareProcess {

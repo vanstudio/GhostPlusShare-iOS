@@ -95,6 +95,11 @@
 - (void)shareFromViewController:(UIViewController *)fromViewController {
 	GPLog(@"fromViewController : %@", fromViewController);
 	
+	// exception
+	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter://"]] == NO) {
+		[GPAlert showAlertWithTitle:[self.class sharerTitle] message:@"트위터 앱을 설치하신 후에 이용하실 수 있습니다." cancelButtonTitle:@"확인"];
+		return;
+	}
 	
 	//////////////////////////////////////////////////
 	// Fabric - TwitterKit
