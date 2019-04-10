@@ -1,4 +1,4 @@
-@version = "1.09"
+@version = "1.10"
 Pod::Spec.new do |s|
   s.name             = 'GhostPlusShare'
   s.version          = @version
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.authors          = { 'VANSTUDIO' => 'vanstudio@ghost-corps.com' }
   
-  s.platform     = :ios, '8.0'
+  s.platform     = :ios, '9.0'
   s.requires_arc = true
   
   s.source       = { :git => "https://github.com/vanstudio/GhostPlusShare-iOS.git", :tag => @version }
@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
   	twitter.pod_target_xcconfig = { 'CLANG_ENABLE_MODULES' => 'NO' }	# for TwitterCore module error
   	twitter.source_files = 'Classes/Services/Twitter/**/*.{h,m}'
   	twitter.dependency 'Fabric'
+  	twitter.dependency 'TwitterCore', '~> 2.8.x'		# (2019.04.08) 
   	twitter.dependency 'TwitterKit', '~> 2.8.x'			# (2019.04.08) 
   	twitter.dependency 'GhostPlusShare/Core'
   end
