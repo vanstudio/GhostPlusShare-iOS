@@ -129,21 +129,23 @@
 	}
 	
 	// IMAGE
-	if (self.item.image) {
-		[composer setImage:self.item.image];
-	}
-	else if (self.item.imageURL) {
-		__block __weak __typeof(self) weakSelf = self;
-		[UIImage loadImageInBackgroundWithURL:self.item.imageURL complete:^(UIImage *image) {
-			__strong __typeof(weakSelf) strongSelf = weakSelf;
-			if (!image) {
-				GPLogE(@"image is nil");
-				return;
-			}
-			strongSelf.item.image = image;
-			[strongSelf shareFromViewController:fromViewController];
-		}];
-		return;
+	if (self.item.contentURL == nil) {
+		if (self.item.image) {
+			[composer setImage:self.item.image];
+		}
+		else if (self.item.imageURL) {
+			__block __weak __typeof(self) weakSelf = self;
+			[UIImage loadImageInBackgroundWithURL:self.item.imageURL complete:^(UIImage *image) {
+				__strong __typeof(weakSelf) strongSelf = weakSelf;
+				if (!image) {
+					GPLogE(@"image is nil");
+					return;
+				}
+				strongSelf.item.image = image;
+				[strongSelf shareFromViewController:fromViewController];
+			}];
+			return;
+		}
 	}
 	
 	// URL
